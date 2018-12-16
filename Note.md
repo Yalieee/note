@@ -34,7 +34,7 @@ INNER JOIN table2 ON table1.column_name = table2.column_name;
 
 ### Isolation
 事務隔離分為不同級別
-- Serializable: 最高的隔離級別。，要求在選定對象上的讀鎖和寫鎖保持直到事務結束後才能釋放。在SELECT 的查詢中使用一個「WHERE」子句來描述一個範圍時應該獲得一個「範圍鎖」（range-locks）。這種機制可以避免phantom reads 現象
+- Serializable: 最高的隔離級別。要求在選定對象上的讀鎖和寫鎖保持直到事務結束後才能釋放。在SELECT 的查詢中使用一個「WHERE」子句來描述一個範圍時應該獲得一個「範圍鎖」（range-locks）。這種機制可以避免phantom reads 現象
 - REPEATABLE READS: 基於鎖機制並發控制的DBMS需要對選定對象的 read locks 和 write locks 一直保持到事務結束，但不要求「範圍鎖」，因此可能會發生 phantom reads。
 - READ COMMITTED: 基於鎖機制並發控制的DBMS需要對選定對象的寫鎖一直保持到事務結束，但是讀鎖在SELECT操作完成後馬上釋放（因此「不可重複讀」現象可能會發生，見下面描述）。和前一種隔離級別一樣，也不要求「範圍鎖」。
 - READ UNCOMMITTED: 最低的隔離級別。允許「髒讀」（dirty reads），事務可以看到其他事務「尚未提交」的修改。
