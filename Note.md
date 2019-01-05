@@ -40,9 +40,15 @@ INNER JOIN table2 ON table1.column_name = table2.column_name;
 - READ UNCOMMITTED: 最低的隔離級別。允許「髒讀」（dirty reads），事務可以看到其他事務「尚未提交」的修改。
 
 問題
-- Dirty read: 當一個事務允許讀取另外一個事務修改但未提交的數據時，就可能發生髒讀。
-- Phantom reads: 在事務執行過程中，當兩個完全相同的查詢語句執行得到不同的結果集
+- Phantom reads: 如果交易A進行兩次查詢，在兩次查詢之中有個交易B插入一筆新資料或刪除一筆新資料，第二次查詢時得到的資料多了第一次查詢時所沒有的筆數，或者少了一筆。這是 Non-repeatable reads 的一個情況(專注在 INSERT 造成的數量差)
+- - 交易A進行查詢得到五筆資料
+- - 交易B插入一筆資料
+- - 交易B COMMIT
+- - 交易A進行查詢得到六筆資料
+
 - Non-repeatable reads: 在一次事務中，當一行數據獲取兩遍得到不同的結果表示發生了「不可重複讀」。(T1先SELECT一次，T2 COMMIT成功，T1還沒結束再讀一次，就會不一樣)
+
+- Dirty read: 當一個事務允許讀取另外一個事務修改但未提交的數據時，就可能發生髒讀。
 
 # Two Phase Locking
 分成兩個階段
@@ -55,6 +61,7 @@ INNER JOIN table2 ON table1.column_name = table2.column_name;
 
 # Dead lock
 交易必須滿足下列四個條件，「死結」才會發生：
+
 – 「彼此互斥」(Mutual Exclusion)
 – 「鎖定且等待」(Lock and Wait)
 – 「不得強佔」(No Preemption)
