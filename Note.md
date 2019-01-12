@@ -50,6 +50,18 @@ INNER JOIN table2 ON table1.column_name = table2.column_name;
 
 - Dirty read: 當一個事務允許讀取另外一個事務修改但未提交的數據時，就可能發生髒讀。
 
+# 樂觀鎖 v.s. 悲觀鎖
+## 樂觀鎖(Optimistic Concurrency Control, OCC)
+总是假设最好的情况，每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号机制和CAS算法实现。
+
+樂觀並行控制多數用於資料爭用不大、衝突較少的環境中，這種環境中，偶爾回復交易的成本會低於讀取資料時鎖定資料的成本，因此可以獲得比其他並行控制方法更高的吞吐量。
+
+## 悲觀鎖 (Pessimistic Concurrency Control, PCC)
+总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会阻塞直到它拿到锁（共享资源每次只给一个线程使用，其它线程阻塞，用完后再把资源转让给其它线程）。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，读锁，写锁等，都是在做操作之前先上锁。Java中synchronized和ReentrantLock等独占锁就是悲观锁思想的实现。
+
+# Prepared statement
+如果同樣的 Prepared statement 重複執行，因為有 cache 機制的關係，且 Sql server 只會驗證及編譯一次，因次會有比較好的效能(即使是不同的 data)。
+
 # Two Phase Locking
 分成兩個階段
 - Phase1: 在此階段中，允許加入新的鎖定或升級動作，但不允許解除任何鎖
@@ -89,6 +101,21 @@ A Secondary index is an index that is not a primary index and may have duplicate
 The primary index contains the key fields of the table. The primary index is automatically created in the database when the table is activated. If a large table is frequently accessed such that it is not possible to apply primary index sorting, you should create secondary indexes for the table.
 
 The indexes on a table have a three-character index ID. '0' is reserved for the primary index. Customers can create their own indexes on SAP tables; their IDs must begin with Y or Z.
+
+# Multithread v.s. Multiprocess
+- Multithread 死掉會全死
+- Mutlithread 會有 lock 問題
+- Mutlithread 之間可以共享資源，Multiprocess 之間需要用 IPC 溝通
+- 記憶體/資源消耗: Multiprocess > Multithread (Multithread 共用 code)
+- Windows 的 Process 比較貴，所以比較常見 Multithread。Unix 系統的 Process 比較便宜，比較常見 Multiprocess
+
+# Zombie process
+殭屍進程是指完成執行（通過exit系統調用，或運行時發生致命錯誤或收到終止信號所致）但在作業系統的進程表中仍然有一個表項（進程控制塊PCB），處於"終止狀態"的進程。這發生於子進程需要保留表項以允許其父進程讀取子進程的exit status：一旦退出態通過wait系統調用讀取，殭屍進程條目就從進程表中刪除，稱之為"回收（reaped）"。正常情況下，進程直接被其父進程wait並由系統回收。進程長時間保持殭屍狀態一般是錯誤的並導致資源泄漏。
+
+防止的方法:
+- 呼叫 wait
+- parent 設定忽略 SIGCHLD 訊號，這樣 child 結束後會直接被回收
+- parent 接收到 SIGCHLD 後呼叫 wait
 
 # HTTPS
 1. Server has a certificate
