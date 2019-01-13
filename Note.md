@@ -135,3 +135,49 @@ The indexes on a table have a three-character index ID. '0' is reserved for the 
 - Support server push
 - Pipelining of requests (免除多次 TCP handshake)
 - Multiplexing multiple requests over a single TCP connection
+
+# 正規化 / 反正規化
+## 正規化
+優點
+- 降低重複性
+- 要更新只要更新一個地方
+
+缺點
+- 切得太細，要做很多 JOIN
+
+滿足第一條規則，就稱為 1NF。接著滿足第二條規則，稱為 2NF。
+
+隨著正規化程度:
+- 1NF -> 2NF -> 3NF -> BCNF -> ...
+
+### 1NF
+目的
+- 除去重複資料
+
+特性
+- 每一個欄位只能有一個單一值(不會有 array 之類的，一個 record 裡面有多個 value)
+
+做法
+- 把本來的一筆 record 拆成多筆 record
+
+### 2NF
+目的
+- 所有非鍵值屬性皆完全功能相依於主鍵
+
+做法
+- 除去部分功能相依 (把不是和主鍵完全相依的部分，拉出去建另一張 table)
+
+### 3NF
+目的
+- 非鍵值屬性間，不存在著功能相依性
+
+作法
+- 把有遞移相依的拉出去建另一張 table
+
+### BCNF
+特性
+- 如果主鍵只有一個，直接符合 BCNF
+- 如果主鍵不只一個，主鍵中的各欄位不可以相依於其他非主鍵的欄位
+
+## 反正規化
+添加冗於資訊，來增加查詢速度(e.g., song_all)。
